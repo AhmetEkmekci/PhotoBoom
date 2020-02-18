@@ -5,8 +5,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\photos\1.jpg" />
+    <None Include="wwwroot\photos\10.jpg" />
+    <None Include="wwwroot\photos\2.jpg" />
+    <None Include="wwwroot\photos\3.jpg" />
+    <None Include="wwwroot\photos\4.jpg" />
+    <None Include="wwwroot\photos\5.jpg" />
+    <None Include="wwwroot\photos\6.jpg" />
+    <None Include="wwwroot\photos\7.jpg" />
+    <None Include="wwwroot\photos\8.jpg" />
+    <None Include="wwwroot\photos\9.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Views\Photo\Index.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
   </ItemGroup>
 
 </Project>

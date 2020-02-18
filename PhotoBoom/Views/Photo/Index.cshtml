@@ -1,0 +1,164 @@
+﻿@model IEnumerable<PhotoModel>
+@{
+    ViewData["Title"] = "My Photos";
+    string webRootPath = ViewBag.webRootPath;
+}
+
+<div class="row">
+    <div class="col-md-12 mt-3">
+        <h2 class="text-center">My Photos</h2>
+    </div>
+    @if (Model == null || !Model.Any())
+    {
+        <div class="col-md-12 mt-3">
+            <h3>You don’t have any photos yet ;(</h3>
+        </div>
+    }
+    else
+    {
+        <div class="col-md-12 mt-3">
+
+            <div class="carousel slide" id="photoAlbumCarousel" data-interval="false">
+                <div class="carousel-inner w-100" role="listbox">
+                    @{
+                        var photoCount = Model.Count();
+                        for (int i = 0; i <= photoCount / 4; i++)
+                        {
+                            <div class="carousel-item row no-gutters @(i == 0 ? "active" : string.Empty)">
+                                @for (int k = i * 4; k < Math.Min((i + 1) * 4, photoCount); k++)
+                                {
+                                    var photoId = Model.ElementAt(k).Id;
+                                    <div class="col-3 float-left text-center">
+                                        <a data-toggle="modal" data-target="#DetailModal" data-id="@photoId">
+                                            @*~/photos/@(photoId).jpg*@
+                                            <img class="photoAlbumSize" src="@Url.Action("Image","Photo", new { id = photoId })" />
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+                <a class="carousel-control-prev" href="#photoAlbumCarousel" data-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </a>
+                <a class="carousel-control-next" href="#photoAlbumCarousel" data-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </a>
+            </div>
+
+        </div>
+    }
+    <div class="col-md-12 mt-3">
+        <p class="text-center">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#CreateModal">Add Photo</button>
+        </p>
+    </div>
+</div>
+
+<div class="modal fade" id="DetailModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">New message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label class="col-form-label">Tags:</label>
+                        <span class="form-control tags"></span>
+                    </div>
+                    <div class="form-group text-center">
+                        <img class="photoDetailSize" src="" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger deletePhoto">Delete Photo</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="CreateModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Photo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="CreateModalForm" action="@Url.Action("Save", "Photo")" enctype="multipart/form-data" method="POST">
+                    <div class="form-group">
+                        <label for="tags" class="col-form-label">Title:</label>
+                        <input type="text" class="form-control" name="Title">
+                    </div>
+                    <div class="form-group">
+                        <label for="tags" class="col-form-label">Tags:</label>
+                        <input type="text" class="form-control" name="Tags" placeholder="Sample: #t1, #t2, #t3">
+                    </div>
+                    <div class="form-group">
+                        <input type="file" name="Image" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary addPhoto">Add Photo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $('#DetailModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var photoId = button.data('id');
+            var modal = $(this);
+            modal.find('.modal-body .photoDetailSize').attr("src", "@Url.Action("Image", "Photo")/" + photoId);
+
+            $(".deletePhoto").click(function () {
+                if (confirm("The photo will be deleted permenantly.")) {
+                    $.ajax({
+                        url: "@Url.Action("Delete", "Photo")",
+                        data: { id: photoId },
+                        success: function () {
+                            location.reload();
+                        }
+                    });
+                }
+            });
+
+            $.ajax({
+                url: "@Url.Action("Detail","Photo")",
+                data: { id : photoId },
+                success: function (data) {
+                    modal.find('.modal-title').text(data.title);
+                    for (var i = 0; i < data.tagList.length; i++) {
+                        data.tagList[i] = "#" + data.tagList[i];
+                    }
+                    modal.find('.modal-body .tags').html(data.tagList.join(", "));
+                }
+            });
+
+        })
+    </script>
+    <script>
+        $('#CreateModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var modal = $(this);
+
+            $(".addPhoto").click(function () {
+                $("#CreateModalForm").submit();
+            });
+
+        })
+    </script>
+}
