@@ -1,0 +1,16 @@
+apiVersion : apps/v1beta1
+kind: Deployment
+metadata:
+  name: photoboomimage 
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: photoboomimage 
+    spec:
+      containers:
+        - name: photoboomimage 
+          image: photo.azurecr.io/photoboomimage
+          ports:
+          - containerPort: 80
